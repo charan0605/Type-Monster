@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <title>Typing Timer</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 650px;
+        }
+
+        #timer {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: #ff5722;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            resize: none;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button[type="button"] {
+            background-color: #ff5722;
+            color: #fff;
+        }
+
+        button[type="button"]:hover {
+            background-color: #e64a19;
+            transform: scale(1.05);
+        }
+
+        button[type="submit"] {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            #timer {
+                font-size: 2em;
+            }
+
+            textarea {
+                height: 120px;
+                font-size: 1em;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="/results" method="post">
+            <p id="timer">60</p>
+            <p id="paragraph">
+                <%= paragraph %>
+            </p>
+            <input type="hidden" name="paragraph" value="<%= paragraph %>">
+            <textarea onclick="startTimer()" cols="80" id="typing-area" name="input"
+                placeholder="Start typing..."></textarea>
+            <button type="button" onclick="resetForm()">Try again</button>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        var timerDisplay = document.getElementById('timer');
+        var count = 60;
+        var interval;
+
+        function startTimer() {
+            clearInterval(interval); // Clear any existing interval
+            count = parseInt(document.getElementById('timeLimit').value, 10);
+            interval = setInterval(function () {
+                timerDisplay.innerHTML = count;
+                count--;
+                if (count === -1) {
+                    clearInterval(interval);
+                    timerDisplay.innerHTML = 'Time\'s up!';
+                }
+            }, 1000);
+        }
+
+        function resetForm() {
+            clearInterval(interval); // Stop the timer
+            count = 60; // Reset the countdown
+            timerDisplay.innerHTML = count;
+            document.getElementById('typing-area').value = ''; // Clear the textarea
+        }
+
+        function updateParagraph() {
+            const wordCount = document.getElementById('wordCount').value;
+            fetch(`/generateParagraph?wordCount=${wordCount}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('paragraph').innerText = data;
+                    document.querySelector('input[name="paragraph"]').value = data;
+                });
+        }
+    </script>
+</body>
+
+</html>
